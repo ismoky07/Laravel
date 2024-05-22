@@ -3,46 +3,56 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
 use App\Models\Task;
+
 class TaskController extends Controller
 {
-    public function index(){
+    public function index()
+    {
         $tasks = Task::all();
-        return view('tasks.index',['tasks'=>$tasks]);
+        return view('tasks.index', compact('tasks'));
     }
-    public function create(){
+
+    public function create()
+    {
         return view('tasks.create');
-
     }
-    public function list(Request $request){
-        $data = $request->validate([
-            'title' => 'required',
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|max:255',
             'description' => 'required',
-            'priority' => 'required',
+            'priority' => 'required'
         ]);
-        $newTask = Task::create($data);
 
-        return redirect(route('task.index'));
+        Task::create($request->all());
+
+        return redirect()->route('task.index')->with('success', 'Task created successfully.');
     }
-    public function edit(Task $task) {
 
-        return view('tasks.edit',['task'=>$task]);
-
-
+    public function edit(Task $task)
+    {
+        return view('tasks.edit', compact('task'));
     }
-    public function update(Request $request, Task $task) {
 
-        $data = $request->validate([
-            'title' => 'required',
+    public function update(Request $request, Task $task)
+    {
+        $request->validate([
+            'title' => 'required|max:255',
             'description' => 'required',
-            'priority' => 'required',
+            'priority' => 'required'
         ]);
-        $task->update($data);
-        return redirect(route('task.index'))->with('success','Task updated successfully');
+
+        $task->update($request->all());
+
+        return redirect()->route('task.index')->with('success', 'Task updated successfully.');
     }
-    public function delete(Task $task) {
+
+    public function destroy(Task $task)
+    {
         $task->delete();
-        return redirect(route('task.index'))->with('success','Task deleted successfully');
+
+        return redirect()->route('task.index')->with('success', 'Task deleted successfully.');
     }
 }
